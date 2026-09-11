@@ -23,8 +23,8 @@ jobs:
       - name: Build Xcode Project
         run: |
           xcodebuild build \
-            -project "car_test (4.4).xcodeproj" \
-            -scheme "car_test (4.4)" \
+            -project "اختبار السيارة (4.4)/اختبار السيارة (4.4).xcodeproj" \
+            -scheme "اختبار السيارة (4.4)" \
             -sdk iphoneos \
             -configuration Release \
             CODE_SIGN_IDENTITY="" \
