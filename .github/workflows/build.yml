@@ -1,34 +1,16 @@
-name: Build iOS IPA
-
-on:
-  push:
-    branches:
-      - main
-      - master
-  workflow_dispatch:
-
-jobs:
-  build:
-    runs-on: macos-latest
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode.app
-
-      - name: Build Xcode Project
-        run: xcodebuild build -project "اختبار السيارة (4.4)/اختبار السيارة (4.4).xcodeproj" -scheme "اختبار السيارة (4.4)" -sdk iphoneos -configuration Release CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+      - name: Build Xcode Archive
+        run: |
+          xcodebuild archive \
+            -project "اختبار السيارة (4.4)/اختبار السيارة (4.4).xcodeproj" \
+            -scheme "اختبار السيارة (4.4)" \
+            -archivePath build/car_test.xcarchive \
+            -sdk iphoneos \
+            -configuration Release \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
 
       - name: Package IPA
         run: |
           mkdir -p Payload
-          cp -r build/Release-iphoneos/*.app Payload/ 2>/dev/null || cp -r build/Build/Products/Release-iphoneos/*.app Payload/
+          cp -r build/car_test.xcarchive/Products/Applications/*.app Payload/
           zip -r car_test.ipa Payload
-
-      - name: Upload IPA Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: iOS-App-IPA
-          path: car_test.ipa
