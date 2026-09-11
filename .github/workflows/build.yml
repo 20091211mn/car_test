@@ -52,6 +52,3 @@ jobs:
         with:
           tag_name: v1.0.0
           name: "Car Test iOS v1.0.0"
-          files: car_test_unsigned.ipa
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
