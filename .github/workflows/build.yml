@@ -18,13 +18,20 @@ jobs:
       - name: Select Xcode
         run: sudo xcode-select -s /Applications/Xcode.app
 
-      - name: Build Xcode Project
-        run: xcodebuild build -project "car_test (4.4)/car_test (4.4).xcodeproj" -scheme "car_test (4.4)" -sdk iphoneos -configuration Release CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+      - name: Find and Build Xcode Project
+        run: |
+          PROJ_PATH=$(find . -name "*.xcodeproj" | head -n 1)
+          if [ -z "$PROJ_PATH" ]; then
+            echo "Error: Xcode project not found!"
+            exit 1
+          fi
+          echo "Found project at: $PROJ_PATH"
+          xcodebuild build -project "$PROJ_PATH" -scheme "car_test (4.4)" -sdk iphoneos -configuration Release CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
 
       - name: Package IPA
         run: |
           mkdir -p Payload
-          cp -r build/Release-iphoneos/*.app Payload/ 2>/dev/null || cp -r build/Build/Products/Release-iphoneos/*.app Payload/ 2>/dev/null || cp -r ~/Library/Developer/Xcode/DerivedData/*/Build/Products/Release-iphoneos/*.app Payload/
+          cp -r build/Release-iphoneos/*.app Payload/ 2>/dev/null || cp -r build/Build/Products/Release-iphoneos/*.app Payload/ 2>/dev/null || cp -r ~/Library/Developer/Xcode/DerivedData/*/Build/Products/Release-iphoneos/*.app Payload/ 2>/dev/null
           zip -r car_test.ipa Payload
 
       - name: Upload IPA Artifact
