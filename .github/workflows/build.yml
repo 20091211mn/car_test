@@ -45,3 +45,13 @@ jobs:
         with:
           name: godot-ios-unsigned-ipa
           path: car_test_unsigned.ipa
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+        with:
+          tag_name: v1.0.0
+          name: "Car Test iOS v1.0.0"
+          files: car_test_unsigned.ipa
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
