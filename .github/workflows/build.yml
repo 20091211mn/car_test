@@ -1,4 +1,4 @@
-name: Build iOS IPA
+name: Godot iOS Unsigned Build
 
 on:
   push:
@@ -8,36 +8,41 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build-ios:
     runs-on: macos-latest
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Select Xcode
+      - name: Setup Xcode
         run: sudo xcode-select -s /Applications/Xcode.app
 
-      - name: Build Project
+      - name: Find Project and Build Unsigned
         run: |
           PROJ=$(find . -name "*.xcodeproj" -maxdepth 3 | head -n 1)
-          if [ -n "$PROJ" ]; then
-            echo "Found project: $PROJ"
-            xcodebuild build -project "$PROJ" -scheme "car_test (4.4)" -sdk iphoneos -configuration Release CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
-          else
-            echo "Searching for build path..."
-            mkdir -p build/Release-iphoneos
-            xcodebuild -version
+          if [ -z "$PROJ" ]; then
+            echo "Xcode project not found!"
+            exit 1
           fi
+          echo "Building project at: $PROJ"
+          xcodebuild build \
+            -project "$PROJ" \
+            -scheme "car_test (4.4)" \
+            -sdk iphoneos \
+            -configuration Release \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
 
-      - name: Package IPA
+      - name: Create Unsigned IPA
         run: |
           mkdir -p Payload
-          cp -r *.app Payload/ 2>/dev/null || cp -r */*.app Payload/ 2>/dev/null || cp -r build/Release-iphoneos/*.app Payload/ 2>/dev/null || cp -r ~/Library/Developer/Xcode/DerivedData/*/Build/Products/Release-iphoneos/*.app Payload/ 2>/dev/null
-          zip -r car_test.ipa Payload
+          find . -name "*.app" -maxdepth 5 -exec cp -r {} Payload/ \;
+          zip -r car_test_unsigned.ipa Payload
 
       - name: Upload IPA Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: iOS-App-IPA
-          path: car_test.ipa
+          name: godot-ios-unsigned-ipa
+          path: car_test_unsigned.ipa
