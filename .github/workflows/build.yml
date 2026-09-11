@@ -18,23 +18,26 @@ jobs:
       - name: Setup Xcode
         run: sudo xcode-select -s /Applications/Xcode.app
 
-      - name: Find Project and Build Unsigned
+      - name: Download Godot Engine
         run: |
-          PROJ=$(find . -maxdepth 3 -name "*.xcodeproj" | head -n 1)
-          if [ -z "$PROJ" ]; then
-            echo "Xcode project not found!"
-            exit 1
-          fi
-          echo "Building project at: $PROJ"
-          xcodebuild build -project "$PROJ" -scheme "car_test (4.4)" \
-            -sdk iphoneos -configuration Release \
-            -derivedDataPath build \
-            CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+          curl -LO https://github.com/godotengine/godot/releases/download/4.4-stable/Godot_v4.4-stable_macos.universal.zip
+          unzip Godot_v4.4-stable_macos.universal.zip
+          mv Godot.app /Applications/Godot.app
 
-      - name: Create Unsigned IPA
+      - name: Export Godot Project to iOS
+        run: |
+          mkdir -p ios_export
+          /Applications/Godot.app/Contents/MacOS/Godot --headless --export-release "iOS" ios_export/car_test.xcodeproj
+
+      - name: Build Unsigned App
+        run: |
+          cd ios_export
+          xcodebuild build -project car_test.xcodeproj -scheme "car_test (4.4)" -sdk iphoneos -configuration Release CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+
+      - name: Package Unsigned IPA
         run: |
           mkdir -p Payload
-          find build/Build/Products/Release-iphoneos -maxdepth 1 -name "*.app" -exec cp -r {} Payload/ \;
+          cp -r ios_export/build/Release-iphoneos/*.app Payload/ 2>/dev/null || cp -r ios_export/*.app Payload/ 2>/dev/null
           zip -r car_test_unsigned.ipa Payload
 
       - name: Upload IPA Artifact
