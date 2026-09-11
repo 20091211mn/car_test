@@ -21,15 +21,7 @@ jobs:
           xcode-version: latest-stable
 
       - name: Build Xcode Project
-        run: |
-          xcodebuild build \
-            -project "اختبار السيارة (4.4)/اختبار السيارة (4.4).xcodeproj" \
-            -scheme "اختبار السيارة (4.4)" \
-            -sdk iphoneos \
-            -configuration Release \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO
+        run: xcodebuild build -project "اختبار السيارة (4.4)/اختبار السيارة (4.4).xcodeproj" -scheme "اختبار السيارة (4.4)" -sdk iphoneos -configuration Release CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
 
       - name: Package IPA
         run: |
