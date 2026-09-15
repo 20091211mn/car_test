@@ -1,4 +1,4 @@
-name: Build Unsigned IPA — MyGodotGame
+name: Build Unsigned IPA — car_test
 
 on:
   workflow_dispatch:
@@ -6,15 +6,15 @@ on:
       scheme:
         description: "Xcode scheme name"
         required: true
-        default: "MyGodotGame"
+        default: "car_test"
       project_path:
         description: "Path to .xcodeproj or .xcworkspace inside the repo"
         required: true
-        default: "ios/MyGodotGame.xcodeproj"
+        default: "car_test.xcodeproj"
       output_name:
         description: "Output IPA file name (without .ipa)"
         required: true
-        default: "MyGodotGame"
+        default: "car_test"
 
 jobs:
   build-ipa:
